@@ -1,0 +1,41 @@
+# ── subject / reference material (never push this) ────────────────────────────
+*.pdf
+subject/
+en.subject*
+fr.subject*
+
+# ── build output ──────────────────────────────────────────────────────────────
+*.o
+*.d
+*.a
+*.so
+*.so.*
+*.dylib
+libft_malloc.so
+libft_malloc_*.so
+obj/
+objs/
+build/
+bin/
+
+# ── test binaries & artefacts ─────────────────────────────────────────────────
+test
+tests/bin/
+*.out
+a.out
+*.log
+core
+vgcore.*
+callgrind.out.*
+massif.out.*
+perf.data*
+
+# ── editors / OS ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.cache/
+compile_commands.json

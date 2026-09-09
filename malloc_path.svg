@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="936" viewBox="0 0 700 936" role="img">
+<title>The full ft_malloc path, from a size request to a returned pointer</title>
+<desc>malloc rounds the size up, classifies it as TINY, SMALL or LARGE, and looks it up in the one allowed global, which chains the mmap'd zones of each kind. Inside a zone, a zone header is followed by blocks that each carry their own header; the returned pointer is the address just after a block header. free validates the pointer, marks the block free and merges neighbours; realloc resizes in place when it can and otherwise copies. show_alloc_mem walks the same zone lists in address order.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bx{fill:#ffffff;stroke:#B4B2A9;stroke-width:.5}
+.hd{fill:#EEEDFE;stroke:#534AB7;stroke-width:.5}
+.hdt{fill:#3C3489;font-weight:500;font-size:14px}
+.gy{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:.5}
+.gyt{fill:#2C2C2A;font-weight:500;font-size:14px}
+.gys{fill:#5F5E5A;font-size:12px}
+.tl{fill:#E1F5EE;stroke:#0F6E56;stroke-width:.5}
+.tlt{fill:#04342C;font-weight:500;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.tls{fill:#0F6E56;font-size:12px}
+.tlm{fill:#04342C;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.r{fill:#444441;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.rs{fill:#5F5E5A;font-size:11px}
+.ar{stroke:#5F5E5A;stroke-width:1.5;fill:none}
+@media (prefers-color-scheme:dark){
+.bx{fill:#1c1c1b;stroke:#5F5E5A}
+.hd{fill:#3C3489;stroke:#AFA9EC}
+.hdt{fill:#CECBF6}
+.gy{fill:#444441;stroke:#B4B2A9}
+.gyt{fill:#F1EFE8}
+.gys{fill:#D3D1C7}
+.tl{fill:#085041;stroke:#5DCAA5}
+.tlt{fill:#9FE1CB}
+.tls{fill:#9FE1CB}
+.tlm{fill:#9FE1CB}
+.r{fill:#D3D1C7}
+.rs{fill:#B4B2A9}
+.ar{stroke:#B4B2A9}
+}
+</style>
+</defs>
+
+<rect class="gy" x="250" y="40" width="200" height="46" rx="4"/>
+<text class="gyt" x="350" y="60" text-anchor="middle">malloc(size)</text>
+<text class="gys" x="350" y="77" text-anchor="middle">round size up to 16 bytes</text>
+
+<path class="ar" d="M350 86 V108"/>
+<path class="ar" d="M120 108 H580"/>
+<line class="ar" x1="120" y1="108" x2="120" y2="140" marker-end="url(#arrow)"/>
+<line class="ar" x1="350" y1="108" x2="350" y2="140" marker-end="url(#arrow)"/>
+<line class="ar" x1="580" y1="108" x2="580" y2="140" marker-end="url(#arrow)"/>
+
+<rect class="gy" x="30" y="142" width="180" height="52" rx="4"/>
+<text class="gyt" x="120" y="163" text-anchor="middle">TINY</text>
+<text class="gys" x="120" y="181" text-anchor="middle">1 to n = 128 bytes</text>
+
+<rect class="gy" x="260" y="142" width="180" height="52" rx="4"/>
+<text class="gyt" x="350" y="163" text-anchor="middle">SMALL</text>
+<text class="gys" x="350" y="181" text-anchor="middle">129 to m = 1024 bytes</text>
+
+<rect class="gy" x="490" y="142" width="180" height="52" rx="4"/>
+<text class="gyt" x="580" y="163" text-anchor="middle">LARGE</text>
+<text class="gys" x="580" y="181" text-anchor="middle">1025 bytes and above</text>
+
+<line class="ar" x1="120" y1="194" x2="120" y2="236" marker-end="url(#arrow)"/>
+<line class="ar" x1="350" y1="194" x2="350" y2="236" marker-end="url(#arrow)"/>
+<line class="ar" x1="580" y1="194" x2="580" y2="236" marker-end="url(#arrow)"/>
+
+<rect class="bx" x="30" y="238" width="640" height="122" rx="4"/>
+<rect class="hd" x="30" y="238" width="640" height="26" rx="4"/>
+<text class="hdt" x="350" y="256" text-anchor="middle">g_arena — the one global variable allowed for allocations</text>
+<rect class="tl" x="42" y="272" width="616" height="24" rx="4"/>
+<text class="tlm" x="54" y="288">tiny  -&gt;  [ zone 16384 B ]  -&gt;  [ zone 16384 B ]  -&gt;  NULL</text>
+<text class="r" x="54" y="317">small -&gt;  [ zone 106496 B ]  -&gt;  NULL</text>
+<text class="r" x="54" y="343">large -&gt;  [ zone 1 alloc ]  -&gt;  [ zone 1 alloc ]  -&gt;  NULL</text>
+<text class="rs" x="646" y="288" text-anchor="end">pre-allocated, reused</text>
+<text class="rs" x="646" y="343" text-anchor="end">one mmap per call</text>
+
+<path class="ar" d="M350 360 V390" marker-end="url(#arrow)"/>
+
+<rect class="bx" x="30" y="392" width="640" height="160" rx="4"/>
+<rect class="hd" x="30" y="392" width="640" height="26" rx="4"/>
+<text class="hdt" x="350" y="410" text-anchor="middle">inside one TINY zone — 4 pages, holds at least 100 allocations</text>
+
+<rect class="gy" x="42" y="432" width="70" height="42" rx="3"/>
+<text class="r" x="77" y="458" text-anchor="middle">zone</text>
+<rect class="gy" x="112" y="432" width="34" height="42" rx="3"/>
+<text class="r" x="129" y="458" text-anchor="middle">hdr</text>
+<rect class="tl" x="146" y="432" width="110" height="42" rx="3"/>
+<text class="tlm" x="201" y="458" text-anchor="middle">32 B in use</text>
+<rect class="gy" x="256" y="432" width="34" height="42" rx="3"/>
+<text class="r" x="273" y="458" text-anchor="middle">hdr</text>
+<rect class="bx" x="290" y="432" width="130" height="42" rx="3"/>
+<text class="r" x="355" y="458" text-anchor="middle">64 B free</text>
+<rect class="gy" x="420" y="432" width="34" height="42" rx="3"/>
+<text class="r" x="437" y="458" text-anchor="middle">hdr</text>
+<rect class="bx" x="454" y="432" width="204" height="42" rx="3"/>
+<text class="r" x="556" y="458" text-anchor="middle">the rest, still free</text>
+
+<text class="rs" x="42" y="496">every block starts with a header: payload size, in-use flag, prev and next</text>
+<text class="rs" x="42" y="514">malloc hands back header + 1, so sizeof(header) must be a multiple of 16</text>
+<text class="rs" x="42" y="532">no free block big enough in any zone of this kind → mmap a new zone, then split</text>
+
+<line class="ar" x1="175" y1="552" x2="175" y2="588" marker-end="url(#arrow)"/>
+<line class="ar" x1="525" y1="552" x2="525" y2="588" marker-end="url(#arrow)"/>
+
+<rect class="bx" x="30" y="590" width="290" height="140" rx="4"/>
+<rect class="hd" x="30" y="590" width="290" height="26" rx="4"/>
+<text class="hdt" x="175" y="608" text-anchor="middle">free(ptr)</text>
+<text class="r" x="42" y="633">ptr == NULL  -&gt; do nothing</text>
+<text class="r" x="42" y="655">not one of ours -&gt; do nothing</text>
+<text class="r" x="42" y="677">clear the in-use flag</text>
+<text class="r" x="42" y="699">merge with free neighbours</text>
+<text class="r" x="42" y="721">zone all free -&gt; munmap it</text>
+
+<rect class="bx" x="380" y="590" width="290" height="140" rx="4"/>
+<rect class="hd" x="380" y="590" width="290" height="26" rx="4"/>
+<text class="hdt" x="525" y="608" text-anchor="middle">realloc(ptr, size)</text>
+<text class="r" x="392" y="633">ptr == NULL  -&gt; malloc(size)</text>
+<text class="r" x="392" y="655">size == 0    -&gt; free(ptr)</text>
+<text class="r" x="392" y="677">shrinks      -&gt; split in place</text>
+<text class="r" x="392" y="699">next is free -&gt; absorb it</text>
+<text class="r" x="392" y="721">otherwise    -&gt; copy, then free</text>
+
+<path class="ar" d="M175 730 V756 H262" marker-end="url(#arrow)"/>
+<path class="ar" d="M525 730 V756 H438" marker-end="url(#arrow)"/>
+
+<rect class="tl" x="140" y="758" width="420" height="158" rx="4"/>
+<text class="tlt" x="350" y="781" text-anchor="middle">show_alloc_mem()</text>
+<text class="tls" x="350" y="798" text-anchor="middle">walks the same zone lists, by increasing address</text>
+<text class="tlm" x="158" y="824">TINY : 0xA0000</text>
+<text class="tlm" x="158" y="843">0xA0020 - 0xA004A : 42 bytes</text>
+<text class="tlm" x="158" y="862">LARGE : 0xB0000</text>
+<text class="tlm" x="158" y="881">0xB0020 - 0xBBEEF : 48847 bytes</text>
+<line class="ar" x1="158" y1="891" x2="542" y2="891" stroke-width=".5"/>
+<text class="tlm" x="158" y="908">Total : 48889 bytes</text>
+</svg>
