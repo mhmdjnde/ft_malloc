@@ -12,12 +12,7 @@
 
 #include "ft_malloc.h"
 
-/*
-** Part 1 stub. Doing nothing is already correct for the only input this stub
-** can legitimately receive: the NULL that our malloc always returns.
-*/
-
-void	free(void *ptr)
+void free(void *ptr)
 {
 	(void)ptr;
 }

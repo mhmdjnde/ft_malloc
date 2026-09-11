@@ -12,15 +12,9 @@
 
 #include "ft_malloc.h"
 
-/*
-** Part 1 stub. Returning NULL without touching ptr matches the libc contract
-** for a realloc that cannot satisfy the request: the original allocation is
-** left untouched and the caller keeps ownership of it.
-*/
-
-void	*realloc(void *ptr, size_t size)
+void *realloc(void *ptr, size_t size)
 {
 	(void)ptr;
 	(void)size;
-	return (NULL);
+	return NULL;
 }

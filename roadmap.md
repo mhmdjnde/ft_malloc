@@ -43,7 +43,7 @@ it is the one thing you never want to debug at 3 a.m. later.
 
 ---
 
-## Part 2 — The memory model: pick `n`, `m`, `N`, `M` and design the headers
+## Part 2 — The memory model: pick `n`, `m`, `N`, `M` and design the headers ✅ done
 
 This is a pen-and-paper part, and it is the single most important design decision in the
 project. The subject says TINY allocations of `1..n` bytes live in `N`-byte zones, SMALL
@@ -62,19 +62,23 @@ header — its kind (TINY/SMALL/LARGE), its total mapped size, a pointer to its 
 and a `next` pointer chaining zones of the same kind. **Alignment is a graded requirement:**
 the pointer we hand back is `header + 1`, so `sizeof(t_block)` must itself be a multiple of
 16 (the x86-64 `max_align_t`), and `sizeof(t_zone)` must be too, otherwise every payload in
-the zone is misaligned. Pad both explicitly. A worked example with a 4096-byte page,
-`sizeof(t_zone) == 48` and `sizeof(t_block) == 32`:
+the zone is misaligned. Instead of dead padding, give `t_zone` a useful fourth field
+(`blocks`) that fills the hole. What was actually built, with `sizeof(t_zone) == 32` and
+`sizeof(t_block) == 32`, on a 4096-byte page:
 
-| kind  | max alloc (`n`, `m`) | required bytes                | zone size (`N`, `M`) |
-|-------|----------------------|-------------------------------|----------------------|
-| TINY  | 128                  | `48 + 100*(128+32) = 16048`   | 4 pages = **16384**  |
-| SMALL | 1024                 | `48 + 100*(1024+32) = 105648` | 26 pages = **106496** |
-| LARGE | anything above 1024  | computed per call             | `page_align(48 + 32 + size)` |
+| kind  | max alloc (`n`, `m`) | required bytes                | zone size (`N`, `M`)         | fits |
+|-------|----------------------|-------------------------------|------------------------------|------|
+| TINY  | 128                  | `32 + 100*(128+32) = 16032`   | 4 pages = **16384**          | 102  |
+| SMALL | 1024                 | `32 + 100*(1024+32) = 105632` | 26 pages = **106496**        | 100  |
+| LARGE | anything above 1024  | computed per call             | `page_align(32 + 32 + size)` | 1    |
 
-**Deliverable:** `srcs/ft_malloc.h` grown to hold the two structs, the constants, the `align16()`
-and `page_align()` helpers, and compile-time `static_assert`-style checks (or a comment
-proving the arithmetic). Write these numbers down — you will be asked to justify every one
-of them at the defence, and "I copied them" is not an answer.
+**Deliverable:** `srcs/ft_malloc.h` holding the two structs, the constants and four
+`_Static_assert`s that make the compiler check the alignment argument; `srcs/align_and_size.c`
+implementing `align_up()`, `get_kind()`, `zone_size()` and `large_zone_size()`.
+The zone sizes are **computed at run time from the real page size** (`getpagesize()`), not
+hardcoded — a Mac with 16 KB pages gets different numbers from the same code. Write the
+reasoning down: you will be asked to justify every constant at the defence, and "I copied
+them" is not an answer.
 
 ---
 
