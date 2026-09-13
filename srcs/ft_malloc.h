@@ -14,7 +14,9 @@
 #define FT_MALLOC_H
 
 #include <stddef.h>
+#include <stdint.h>
 #include <unistd.h>
+#include <sys/mman.h>
 
 #define ALIGNMENT 16
 
@@ -37,10 +39,17 @@ typedef struct s_zone
 	struct s_zone   *next;
 } t_zone;
 
+//jnde is here, this is the only global variable used, it is to save the allocated
+//memory depending on its kind, so if I want to allocate another time
+extern t_zone *g_zones[3];
+
 size_t align_up(size_t size, size_t step);
 int    get_kind(size_t size);
 int    zone_size(int kind);
 size_t large_zone_size(size_t size);
+
+t_zone *create_zone(int kind, size_t size);
+void   split_block(t_block *block, size_t size);
 
 void *malloc(size_t size);
 void free(void *ptr);

@@ -22,7 +22,8 @@ of them is an instant fail, so re-read this block before each part):
 - Clean code even though there is no norm. "If it's ugly, you will get 0."
 
 The picture of the whole data path lives in [`malloc_path.svg`](malloc_path.svg) — open it
-next to this file while reading.
+next to this file while reading. [`malloc_two_calls.svg`](malloc_two_calls.svg) traces two
+real allocations through it, step by step, with the actual addresses.
 
 ---
 
@@ -82,7 +83,7 @@ them" is not an answer.
 
 ---
 
-## Part 3 — Zones: getting memory from the kernel
+## Part 3 — Zones: getting memory from the kernel ✅ done
 
 Now write the only code in the project that talks to the kernel for memory. `create_zone(kind)`
 computes the right size from Part 2, calls
@@ -100,7 +101,7 @@ lands on a 16-byte boundary before moving on.
 
 ---
 
-## Part 4 — `malloc` for TINY and SMALL
+## Part 4 — `malloc` for TINY and SMALL ✅ done
 
 The core of the project. `malloc(size)`: reject nonsense first (a `size` of 0 — pick a
 behaviour and document it; a `size` that overflows when you add the header and round up),
