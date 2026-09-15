@@ -40,7 +40,8 @@ typedef struct s_zone
 } t_zone;
 
 //jnde is here, this is the only global variable used, it is to save the allocated
-//memory depending on its kind, so if I want to allocate another time
+//memory depending on its kind, so if I want to allocate another time, I'll check if
+//there is already a zone of that kind with free space, and if not, I'll create one.
 extern t_zone *g_zones[3];
 
 size_t align_up(size_t size, size_t step);
@@ -49,7 +50,6 @@ int    zone_size(int kind);
 size_t large_zone_size(size_t size);
 
 t_zone *create_zone(int kind, size_t size);
-void   split_block(t_block *block, size_t size);
 
 void *malloc(size_t size);
 void free(void *ptr);

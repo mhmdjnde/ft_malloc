@@ -23,6 +23,9 @@ t_zone *create_zone(int kind, size_t size)
 	else
 		total = zone_size(kind);
 
+	if (total == 0)
+		return NULL;
+
 	//jndeishere, NULL so random address, total size, read and write only,
 	//private and plain memory not a file, no file descriptor, no offset	
 	t_zone *zone = mmap(NULL, total, PROT_READ | PROT_WRITE,

@@ -22,8 +22,9 @@ of them is an instant fail, so re-read this block before each part):
 - Clean code even though there is no norm. "If it's ugly, you will get 0."
 
 The picture of the whole data path lives in [`malloc_path.svg`](malloc_path.svg) — open it
-next to this file while reading. [`malloc_two_calls.svg`](malloc_two_calls.svg) traces two
-real allocations through it, step by step, with the actual addresses.
+next to this file while reading. [`malloc_two_calls.svg`](malloc_two_calls.svg) traces three
+real allocations through it — one tiny/small pair and one large — step by step, with the
+actual addresses.
 
 ---
 
@@ -120,7 +121,7 @@ into every one, reads it back, and confirms no two returned pointers overlap and
 
 ---
 
-## Part 5 — `malloc` for LARGE
+## Part 5 — `malloc` for LARGE ✅ done
 
 LARGE is the easy case and a good breather after Part 4. Any request above `m` gets its own
 `mmap` of `page_align(sizeof(t_zone) + sizeof(t_block) + align16(size))`, holding exactly one
