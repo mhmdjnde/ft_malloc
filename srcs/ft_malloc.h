@@ -49,6 +49,10 @@ int    get_kind(size_t size);
 int    zone_size(int kind);
 size_t large_zone_size(size_t size);
 
+void put_str(char *s);
+void put_nbr(size_t n);
+void put_ptr(void *ptr);
+
 t_zone *create_zone(int kind, size_t size);
 
 void *malloc(size_t size);

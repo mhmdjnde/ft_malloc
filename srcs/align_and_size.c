@@ -38,10 +38,6 @@ int zone_size(int kind)
 	return (int)align_up(needed, getpagesize());
 }
 
-// returns 0 when no mapping that big could exist. both roundings below add to size,
-// so a request near the top of size_t would wrap and we would map a single page for
-// a caller that thinks it owns exabytes. 0 is the "impossible" answer, not a size.
-
 size_t large_zone_size(size_t size)
 {
 	size_t page = getpagesize();

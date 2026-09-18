@@ -14,6 +14,25 @@
 
 t_zone *g_zones[3] = {NULL, NULL, NULL};
 
+static void	add_zone(int kind, t_zone *zone)
+{
+	t_zone	*prev;
+	t_zone	*cur;
+
+	prev = NULL;
+	cur = g_zones[kind];
+	while (cur != NULL && cur < zone)
+	{
+		prev = cur;
+		cur = cur->next;
+	}
+	zone->next = cur;
+	if (prev == NULL)
+		g_zones[kind] = zone;
+	else
+		prev->next = zone;
+}
+
 t_zone *create_zone(int kind, size_t size)
 {
 	size_t total;
@@ -37,7 +56,6 @@ t_zone *create_zone(int kind, size_t size)
 	zone->kind = kind;
 	zone->size = total;
 	zone->blocks = (t_block *)(zone + 1);
-	zone->next = g_zones[kind];
 
 	t_block *first = zone->blocks;
 	first->size = total - sizeof(t_zone) - sizeof(t_block);
@@ -45,6 +63,6 @@ t_zone *create_zone(int kind, size_t size)
 	first->prev = NULL;
 	first->next = NULL;
 
-	g_zones[kind] = zone;
+	add_zone(kind, zone);
 	return zone;
 }

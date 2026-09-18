@@ -24,7 +24,9 @@ of them is an instant fail, so re-read this block before each part):
 The picture of the whole data path lives in [`malloc_path.svg`](malloc_path.svg) — open it
 next to this file while reading. [`malloc_two_calls.svg`](malloc_two_calls.svg) traces three
 real allocations through it — one tiny/small pair and one large — step by step, with the
-actual addresses.
+actual addresses, and [`free_two_calls.svg`](free_two_calls.svg) then frees them again.
+[`free_merge_cases.svg`](free_merge_cases.svg) is a closer look at `merge_block` alone, as a
+linked list, for a block that is first, in the middle, and last.
 
 ---
 
@@ -137,7 +139,7 @@ a tiny number. **Deliverable:** `malloc(1)`, `malloc(1024)`, `malloc(10 * 1024 *
 
 ---
 
-## Part 6 — `show_alloc_mem()`
+## Part 6 — `show_alloc_mem()` ✅ done
 
 Implement the required visualiser now, while `free` does not exist yet — it becomes your
 debugger for every remaining part, so building it early pays for itself many times over.
@@ -165,7 +167,7 @@ hand against what you asked for.
 
 ---
 
-## Part 7 — `free()`, coalescing, and giving zones back
+## Part 7 — `free()`, coalescing, and giving zones back ✅ done
 
 `free(ptr)` must be paranoid, because it is where a wrong pointer turns into a segfault and a
 failed defence. `free(NULL)` is a documented no-op. For anything else, **validate before you
