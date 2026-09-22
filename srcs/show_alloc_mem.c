@@ -12,7 +12,7 @@
 
 #include "ft_malloc.h"
 
-static size_t	print_blocks(t_zone *zone)
+size_t	print_blocks(t_zone *zone)
 {
 	size_t	used;
 	t_block	*block;

@@ -12,7 +12,7 @@
 
 #include "ft_malloc.h"
 
-static int	digcount(size_t n, size_t base)
+int	digcount(size_t n, size_t base)
 {
 	int	count;
 

@@ -14,7 +14,7 @@
 
 t_zone *g_zones[3] = {NULL, NULL, NULL};
 
-static void	add_zone(int kind, t_zone *zone)
+void	add_zone(int kind, t_zone *zone)
 {
 	t_zone	*prev;
 	t_zone	*cur;

@@ -22,11 +22,10 @@ of them is an instant fail, so re-read this block before each part):
 - Clean code even though there is no norm. "If it's ugly, you will get 0."
 
 The picture of the whole data path lives in [`malloc_path.svg`](malloc_path.svg) — open it
-next to this file while reading. [`malloc_two_calls.svg`](malloc_two_calls.svg) traces three
+next to this file while reading. [`malloc_three_calls.svg`](malloc_three_calls.svg) traces three
 real allocations through it — one tiny/small pair and one large — step by step, with the
-actual addresses, and [`free_two_calls.svg`](free_two_calls.svg) then frees them again.
-[`free_merge_cases.svg`](free_merge_cases.svg) is a closer look at `merge_block` alone, as a
-linked list, for a block that is first, in the middle, and last.
+actual addresses. [`realloc_three_calls.svg`](realloc_three_calls.svg) then resizes those same
+three, and [`free_three_calls.svg`](free_three_calls.svg) frees them.
 
 ---
 
@@ -94,7 +93,7 @@ computes the right size from Part 2, calls
 against `MAP_FAILED` (**not** `NULL` — this is the classic bug), writes the `t_zone` header at
 offset 0, writes one giant free `t_block` covering the rest of the mapping, and pushes the
 zone onto the right list. This is also where **the one allowed global** appears: a single
-`static t_arena g_arena;` holding three list heads (`tiny`, `small`, `large`). Three heads in
+`t_arena g_arena;` holding three list heads (`tiny`, `small`, `large`). Three heads in
 one struct is one global; three separate variables is three globals and a failed defence.
 Cache the page size once in that same struct rather than calling `sysconf` on every
 allocation. Optionally call `getrlimit(RLIMIT_AS)` here to refuse absurd requests before
@@ -186,7 +185,7 @@ immediately. **Deliverable:** allocate a lot, free everything, and `show_alloc_m
 
 ---
 
-## Part 8 — `realloc()`
+## Part 8 — `realloc()` ✅ done
 
 `realloc` looks small and hides more edge cases than the rest of the project combined, so give
 it its own part and enumerate them explicitly. `realloc(NULL, size)` is exactly `malloc(size)`.

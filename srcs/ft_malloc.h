@@ -53,7 +53,10 @@ void put_str(char *s);
 void put_nbr(size_t n);
 void put_ptr(void *ptr);
 
-t_zone *create_zone(int kind, size_t size);
+t_zone  *create_zone(int kind, size_t size);
+t_zone  *find_zone(void *ptr);
+t_block *find_block(t_zone *zone, void *ptr);
+void    split_block(t_block *block, size_t size);
 
 void *malloc(size_t size);
 void free(void *ptr);

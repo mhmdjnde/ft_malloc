@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="980" viewBox="0 0 780 980" role="img">
+<title>realloc on the same three allocations: same size, bigger in place, bigger somewhere else</title>
+<desc>Starting from the 256 and 512 byte small allocations and the 5000 byte large one, four independent realloc scenarios. Asking for the same size changes nothing and returns the same pointer. Growing the 512 works in place because its neighbour is the free tail. Growing the 256 has to move because its neighbour is still in use. Growing the large allocation fits inside the page rounding slack, so it also stays put with no syscall.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bx{fill:#ffffff;stroke:#B4B2A9;stroke-width:.5}
+.hd{fill:#EEEDFE;stroke:#534AB7;stroke-width:.5}
+.hdt{fill:#3C3489;font-weight:500;font-size:14px}
+.gy{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:.5}
+.tl{fill:#E1F5EE;stroke:#0F6E56;stroke-width:.5}
+.tlt{fill:#04342C;font-weight:500;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.tls{fill:#0F6E56;font-size:11px}
+.rd{fill:#FBEDEA;stroke:#9B3A28;stroke-width:.5}
+.rdt{fill:#6B2418;font-weight:500;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.ti{fill:#2C2C2A;font-weight:600;font-size:15px}
+.r{fill:#444441;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.rs{fill:#5F5E5A;font-size:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.lb{fill:#2C2C2A;font-size:12px;font-weight:500}
+.c{fill:#444441;font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.gys{fill:#5F5E5A;font-size:11px}
+@media (prefers-color-scheme:dark){
+.bx{fill:#1c1c1b;stroke:#5F5E5A}
+.hd{fill:#3C3489;stroke:#AFA9EC}
+.hdt{fill:#CECBF6}
+.gy{fill:#444441;stroke:#B4B2A9}
+.tl{fill:#085041;stroke:#5DCAA5}
+.tlt{fill:#9FE1CB}
+.tls{fill:#9FE1CB}
+.rd{fill:#5C2116;stroke:#E8A091}
+.rdt{fill:#F6C9BF}
+.ti{fill:#F1EFE8}
+.r{fill:#D3D1C7}
+.rs{fill:#B4B2A9}
+.lb{fill:#F1EFE8}
+.c{fill:#D3D1C7}
+.gys{fill:#B4B2A9}
+}
+</style>
+</defs>
+
+<text class="ti" x="30" y="26">realloc — same size, bigger in place, bigger somewhere else</text>
+
+<text class="lb" x="30" y="52">BASE — the three allocations from malloc_three_calls. offsets from the small zone base</text>
+<rect class="gy" x="30" y="60" width="70" height="40" rx="3"/>
+<text class="r" x="65" y="85" text-anchor="middle">t_zone</text>
+<rect class="gy" x="100" y="60" width="45" height="40" rx="3"/>
+<text class="r" x="122" y="85" text-anchor="middle">hdr</text>
+<rect class="tl" x="145" y="60" width="120" height="40" rx="3"/>
+<text class="tlt" x="205" y="85" text-anchor="middle">p1  256</text>
+<rect class="gy" x="265" y="60" width="45" height="40" rx="3"/>
+<text class="r" x="287" y="85" text-anchor="middle">hdr</text>
+<rect class="tl" x="310" y="60" width="160" height="40" rx="3"/>
+<text class="tlt" x="390" y="85" text-anchor="middle">p2  512</text>
+<rect class="gy" x="470" y="60" width="45" height="40" rx="3"/>
+<text class="r" x="492" y="85" text-anchor="middle">hdr</text>
+<rect class="bx" x="515" y="60" width="235" height="40" rx="3"/>
+<text class="r" x="632" y="85" text-anchor="middle">105600 free (the tail)</text>
+<text class="rs" x="30" y="114">+0</text>
+<text class="rs" x="145" y="114">+64</text>
+<text class="rs" x="310" y="114">+352</text>
+<text class="rs" x="515" y="114">+896</text>
+<text class="gys" x="750" y="114" text-anchor="end">L = 5000 sits in its own 8192 zone</text>
+
+<rect class="hd" x="30" y="134" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="152">A — realloc(p1, 256): the SAME size, so nothing happens at all</text>
+<text class="tls" x="738" y="152" text-anchor="end">same pointer</text>
+
+<text class="c" x="42" y="180">get_kind(256) = 1 = zone-&gt;kind, not large  →  try in place. next is p2, in use, so room_after = 256</text>
+<text class="c" x="42" y="197">256 &gt;= 256  →  resize_here. nothing to absorb, and split_block bails: 256 &lt; 256 + 32 + 16</text>
+
+<rect class="gy" x="30" y="208" width="70" height="40" rx="3"/>
+<text class="r" x="65" y="233" text-anchor="middle">t_zone</text>
+<rect class="gy" x="100" y="208" width="45" height="40" rx="3"/>
+<text class="r" x="122" y="233" text-anchor="middle">hdr</text>
+<rect class="tl" x="145" y="208" width="120" height="40" rx="3"/>
+<text class="tlt" x="205" y="233" text-anchor="middle">p1  256</text>
+<rect class="gy" x="265" y="208" width="45" height="40" rx="3"/>
+<text class="r" x="287" y="233" text-anchor="middle">hdr</text>
+<rect class="tl" x="310" y="208" width="160" height="40" rx="3"/>
+<text class="tlt" x="390" y="233" text-anchor="middle">p2  512</text>
+<rect class="gy" x="470" y="208" width="45" height="40" rx="3"/>
+<text class="r" x="492" y="233" text-anchor="middle">hdr</text>
+<rect class="bx" x="515" y="208" width="235" height="40" rx="3"/>
+<text class="r" x="632" y="233" text-anchor="middle">105600 free</text>
+<text class="gys" x="30" y="266">byte for byte identical to BASE — not one field was written</text>
+
+<rect class="hd" x="30" y="288" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="306">B — realloc(p2, 1024): bigger, and its neighbour is the free tail, so it grows IN PLACE</text>
+<text class="tls" x="738" y="306" text-anchor="end">same pointer</text>
+
+<text class="c" x="42" y="334">room_after = 512 + 32 + 105600 = 106144   →  106144 &gt;= 1024, so resize_here</text>
+<text class="c" x="42" y="351">1. absorb the tail   p2-&gt;size = 106144 ; p2-&gt;next = NULL</text>
+<text class="c" x="42" y="368">2. split back to 1024   new tail at +1376, size = 106144 − 1024 − 32 = 105088</text>
+
+<rect class="gy" x="30" y="380" width="70" height="40" rx="3"/>
+<text class="r" x="65" y="405" text-anchor="middle">t_zone</text>
+<rect class="gy" x="100" y="380" width="45" height="40" rx="3"/>
+<text class="r" x="122" y="405" text-anchor="middle">hdr</text>
+<rect class="tl" x="145" y="380" width="120" height="40" rx="3"/>
+<text class="tlt" x="205" y="405" text-anchor="middle">p1  256</text>
+<rect class="gy" x="265" y="380" width="45" height="40" rx="3"/>
+<text class="r" x="287" y="405" text-anchor="middle">hdr</text>
+<rect class="rd" x="310" y="380" width="230" height="40" rx="3"/>
+<text class="rdt" x="425" y="405" text-anchor="middle">p2  1024 — same address</text>
+<rect class="gy" x="540" y="380" width="45" height="40" rx="3"/>
+<text class="r" x="562" y="405" text-anchor="middle">hdr</text>
+<rect class="bx" x="585" y="380" width="165" height="40" rx="3"/>
+<text class="r" x="667" y="405" text-anchor="middle">105088 free</text>
+<text class="rs" x="145" y="434">+64</text>
+<text class="rs" x="310" y="434">+352  p2 unchanged</text>
+<text class="rs" x="585" y="434">+1408</text>
+<text class="gys" x="750" y="434" text-anchor="end">no copy, no syscall</text>
+
+<rect class="hd" x="30" y="456" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="474">C — realloc(p1, 1024): bigger, but p2 is in the way, so it MOVES</text>
+<text class="tls" x="738" y="474" text-anchor="end">new pointer</text>
+
+<text class="c" x="42" y="502">next is p2, free == 0  →  room_after = 256 only. 256 &lt; 1024, so move_elsewhere</text>
+<text class="c" x="42" y="519">malloc(1024) first (lands at +896), copy min(256, 1024) = 256 bytes, then free the old block</text>
+<text class="c" x="42" y="536">malloc BEFORE free, or malloc could hand back the block we are still copying out of</text>
+
+<rect class="gy" x="30" y="548" width="60" height="40" rx="3"/>
+<text class="r" x="60" y="573" text-anchor="middle">zone</text>
+<rect class="gy" x="90" y="548" width="40" height="40" rx="3"/>
+<text class="r" x="110" y="573" text-anchor="middle">hdr</text>
+<rect class="bx" x="130" y="548" width="100" height="40" rx="3"/>
+<text class="r" x="180" y="573" text-anchor="middle">256 FREE</text>
+<rect class="gy" x="230" y="548" width="40" height="40" rx="3"/>
+<text class="r" x="250" y="573" text-anchor="middle">hdr</text>
+<rect class="tl" x="270" y="548" width="120" height="40" rx="3"/>
+<text class="tlt" x="330" y="573" text-anchor="middle">p2  512</text>
+<rect class="gy" x="390" y="548" width="40" height="40" rx="3"/>
+<text class="r" x="410" y="573" text-anchor="middle">hdr</text>
+<rect class="rd" x="430" y="548" width="180" height="40" rx="3"/>
+<text class="rdt" x="520" y="573" text-anchor="middle">p1' 1024 — moved</text>
+<rect class="gy" x="610" y="548" width="40" height="40" rx="3"/>
+<text class="r" x="630" y="573" text-anchor="middle">hdr</text>
+<rect class="bx" x="650" y="548" width="100" height="40" rx="3"/>
+<text class="r" x="700" y="573" text-anchor="middle">104544</text>
+<text class="rs" x="130" y="602">+64 abandoned</text>
+<text class="rs" x="270" y="602">+352</text>
+<text class="rs" x="430" y="602">+896  the new p1</text>
+<text class="rs" x="650" y="602">+1952</text>
+<text class="gys" x="30" y="622">the old 256 block is free but does NOT merge: prev is NULL and next (p2) is still in use — 4 blocks now</text>
+
+<rect class="hd" x="30" y="644" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="662">D — realloc(L, 6000): LARGE, and the page rounding slack already covers it</text>
+<text class="tls" x="738" y="662" text-anchor="end">same pointer</text>
+
+<text class="c" x="42" y="690">get_kind(6000) = 2 = zone-&gt;kind  →  resize_large. usable = 8192 − 32 − 32 = 8128</text>
+<text class="c" x="42" y="707">6000 &lt;= 8128  →  block-&gt;size = 6000 and return. one field written, nothing else</text>
+
+<rect class="gy" x="30" y="718" width="70" height="40" rx="3"/>
+<text class="r" x="65" y="743" text-anchor="middle">t_zone</text>
+<rect class="gy" x="100" y="718" width="45" height="40" rx="3"/>
+<text class="r" x="122" y="743" text-anchor="middle">hdr</text>
+<rect class="rd" x="145" y="718" width="470" height="40" rx="3"/>
+<text class="rdt" x="380" y="743" text-anchor="middle">L  6000  — was 5008, same address, still the only block</text>
+<rect class="bx" x="615" y="718" width="135" height="40" rx="3"/>
+<text class="r" x="682" y="743" text-anchor="middle">2128 slack</text>
+<text class="gys" x="30" y="776">the mapping is still 8192 bytes. growing past 8128 would have meant a fresh mmap and a 5008-byte copy</text>
+
+<rect class="bx" x="30" y="798" width="720" height="158" rx="4"/>
+<rect class="hd" x="30" y="798" width="720" height="26" rx="4"/>
+<text class="hdt" x="390" y="816" text-anchor="middle">which branch realloc takes, and why</text>
+<text xml:space="preserve" class="c" x="42" y="841">ptr == NULL                     malloc(size)</text>
+<text xml:space="preserve" class="c" x="42" y="860">size == 0                       free(ptr), return NULL</text>
+<text xml:space="preserve" class="c" x="42" y="879">not one of ours                 return NULL, touch nothing</text>
+<text xml:space="preserve" class="c" x="42" y="898">class would change              move_elsewhere — a tiny zone must not hold a small block</text>
+<text xml:space="preserve" class="c" x="42" y="917">large and it fits the mapping   just set block-&gt;size        ← D</text>
+<text xml:space="preserve" class="c" x="42" y="936">room_after &gt;= size              resize_here                 ← A and B</text>
+<text xml:space="preserve" class="c" x="42" y="951">otherwise                       move_elsewhere              ← C</text>
+</svg>

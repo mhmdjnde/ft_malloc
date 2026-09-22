@@ -12,7 +12,7 @@
 
 #include "ft_malloc.h"
 
-static int	count_zones(int kind)
+int	count_zones(int kind)
 {
 	t_zone	*zone;
 	int		count;
@@ -27,7 +27,7 @@ static int	count_zones(int kind)
 	return (count);
 }
 
-static t_zone	*find_zone(void *ptr)
+t_zone	*find_zone(void *ptr)
 {
 	t_zone	*zone;
 	int		kind;
@@ -48,7 +48,7 @@ static t_zone	*find_zone(void *ptr)
 	return (NULL);
 }
 
-static t_block	*find_block(t_zone *zone, void *ptr)
+t_block	*find_block(t_zone *zone, void *ptr)
 {
 	t_block	*block;
 
@@ -62,7 +62,7 @@ static t_block	*find_block(t_zone *zone, void *ptr)
 	return (NULL);
 }
 
-static void	merge_block(t_block *block)
+void	merge_block(t_block *block)
 {
 	t_block	*other;
 
@@ -84,7 +84,7 @@ static void	merge_block(t_block *block)
 	}
 }
 
-static void	release_zone(t_zone *zone)
+void	release_zone(t_zone *zone)
 {
 	t_zone	*prev;
 	t_zone	*cur;

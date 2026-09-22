@@ -49,7 +49,7 @@ void split_block(t_block *block, size_t size)
 	block->next = tail;
 }
 
-static t_block *alloc_large(size_t size)
+t_block *alloc_large(size_t size)
 {
 	t_zone *zone = create_zone(2, size);
 
@@ -61,7 +61,7 @@ static t_block *alloc_large(size_t size)
 	return zone->blocks;
 }
 
-static t_block *alloc_pooled(int kind, size_t size)
+t_block *alloc_pooled(int kind, size_t size)
 {
 	t_block *block = find_free_block(kind, size);
 
