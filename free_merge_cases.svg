@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="800" viewBox="0 0 780 800" role="img">
+<title>merge_block: what happens when the freed block is first, in the middle, or last</title>
+<desc>Five 512-byte allocations plus the free tail form a six node doubly linked chain inside one small zone. Freeing the first block merges nothing because prev is NULL and next is still in use. Freeing a middle block whose neighbours are both free fires both branches and three nodes become one. Freeing the last used block always merges forward into the free tail. Each merge absorbs the 32 byte header that sat between the two blocks.</desc>
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bx{fill:#ffffff;stroke:#B4B2A9;stroke-width:.5}
+.hd{fill:#EEEDFE;stroke:#534AB7;stroke-width:.5}
+.hdt{fill:#3C3489;font-weight:500;font-size:14px}
+.tl{fill:#E1F5EE;stroke:#0F6E56;stroke-width:.5}
+.tlt{fill:#04342C;font-weight:500;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.tls{fill:#0F6E56;font-size:10px}
+.fr{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:.5}
+.frt{fill:#2C2C2A;font-weight:500;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.frs{fill:#5F5E5A;font-size:10px}
+.mg{fill:#FBEDEA;stroke:#9B3A28;stroke-width:.5}
+.mgt{fill:#6B2418;font-weight:500;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.mgs{fill:#9B3A28;font-size:10px}
+.ti{fill:#2C2C2A;font-weight:600;font-size:15px}
+.lb{fill:#2C2C2A;font-size:12px;font-weight:500}
+.c{fill:#444441;font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.gys{fill:#5F5E5A;font-size:11px}
+.ar{stroke:#5F5E5A;stroke-width:1.4;fill:none}
+@media (prefers-color-scheme:dark){
+.bx{fill:#1c1c1b;stroke:#5F5E5A}
+.hd{fill:#3C3489;stroke:#AFA9EC}
+.hdt{fill:#CECBF6}
+.tl{fill:#085041;stroke:#5DCAA5}
+.tlt{fill:#9FE1CB}
+.tls{fill:#9FE1CB}
+.fr{fill:#444441;stroke:#B4B2A9}
+.frt{fill:#F1EFE8}
+.frs{fill:#D3D1C7}
+.mg{fill:#5C2116;stroke:#E8A091}
+.mgt{fill:#F6C9BF}
+.mgs{fill:#F6C9BF}
+.ti{fill:#F1EFE8}
+.lb{fill:#F1EFE8}
+.c{fill:#D3D1C7}
+.gys{fill:#B4B2A9}
+.ar{stroke:#B4B2A9}
+}
+</style>
+</defs>
+
+<text class="ti" x="30" y="26">merge_block — freeing the first, a middle, and the last block</text>
+
+<text class="lb" x="30" y="54">START — 5 × malloc(512) in one SMALL zone, offsets from the zone base</text>
+
+<rect class="tl" x="30" y="62" width="105" height="44" rx="4"/>
+<text class="tlt" x="82" y="82" text-anchor="middle">B1  +32</text>
+<text class="tls" x="82" y="98" text-anchor="middle">512  used</text>
+<line class="ar" x1="137" y1="84" x2="151" y2="84" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="153" y="62" width="105" height="44" rx="4"/>
+<text class="tlt" x="205" y="82" text-anchor="middle">B2 +576</text>
+<text class="tls" x="205" y="98" text-anchor="middle">512  used</text>
+<line class="ar" x1="260" y1="84" x2="274" y2="84" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="276" y="62" width="105" height="44" rx="4"/>
+<text class="tlt" x="328" y="82" text-anchor="middle">B3 +1120</text>
+<text class="tls" x="328" y="98" text-anchor="middle">512  used</text>
+<line class="ar" x1="383" y1="84" x2="397" y2="84" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="399" y="62" width="105" height="44" rx="4"/>
+<text class="tlt" x="451" y="82" text-anchor="middle">B4 +1664</text>
+<text class="tls" x="451" y="98" text-anchor="middle">512  used</text>
+<line class="ar" x1="506" y1="84" x2="520" y2="84" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="522" y="62" width="105" height="44" rx="4"/>
+<text class="tlt" x="574" y="82" text-anchor="middle">B5 +2208</text>
+<text class="tls" x="574" y="98" text-anchor="middle">512  used</text>
+<line class="ar" x1="629" y1="84" x2="643" y2="84" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="fr" x="645" y="62" width="105" height="44" rx="4"/>
+<text class="frt" x="697" y="82" text-anchor="middle">TAIL +2752</text>
+<text class="frs" x="697" y="98" text-anchor="middle">103712 free</text>
+
+<text class="gys" x="30" y="124">each ⇄ is next going right and prev going left — one doubly linked chain per zone. B1-&gt;prev is NULL, TAIL-&gt;next is NULL</text>
+
+<rect class="hd" x="30" y="144" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="162">CASE 1 — free(B1), the FIRST block: nothing merges</text>
+<text class="tls" x="738" y="162" text-anchor="end">6 nodes stay 6</text>
+
+<text class="c" x="42" y="190">block-&gt;next  = B2, free == 0   →  forward branch skipped</text>
+<text class="c" x="42" y="207">block-&gt;prev  = NULL            →  backward branch skipped, there is nothing on the left of the first block</text>
+
+<rect class="fr" x="30" y="218" width="105" height="44" rx="4"/>
+<text class="frt" x="82" y="238" text-anchor="middle">B1  +32</text>
+<text class="frs" x="82" y="254" text-anchor="middle">512  FREE</text>
+<line class="ar" x1="137" y1="240" x2="151" y2="240" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="153" y="218" width="105" height="44" rx="4"/>
+<text class="tlt" x="205" y="238" text-anchor="middle">B2 +576</text>
+<text class="tls" x="205" y="254" text-anchor="middle">512  used</text>
+<line class="ar" x1="260" y1="240" x2="274" y2="240" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="276" y="218" width="105" height="44" rx="4"/>
+<text class="tlt" x="328" y="238" text-anchor="middle">B3 +1120</text>
+<text class="tls" x="328" y="254" text-anchor="middle">512  used</text>
+<line class="ar" x1="383" y1="240" x2="397" y2="240" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="399" y="218" width="105" height="44" rx="4"/>
+<text class="tlt" x="451" y="238" text-anchor="middle">B4 +1664</text>
+<text class="tls" x="451" y="254" text-anchor="middle">512  used</text>
+<line class="ar" x1="506" y1="240" x2="520" y2="240" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="522" y="218" width="105" height="44" rx="4"/>
+<text class="tlt" x="574" y="238" text-anchor="middle">B5 +2208</text>
+<text class="tls" x="574" y="254" text-anchor="middle">512  used</text>
+<line class="ar" x1="629" y1="240" x2="643" y2="240" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="fr" x="645" y="218" width="105" height="44" rx="4"/>
+<text class="frt" x="697" y="238" text-anchor="middle">TAIL +2752</text>
+<text class="frs" x="697" y="254" text-anchor="middle">103712 free</text>
+
+<text class="lb" x="30" y="288">now also free(B3), so the next case has a free block on BOTH sides</text>
+
+<rect class="fr" x="30" y="296" width="105" height="44" rx="4"/>
+<text class="frt" x="82" y="316" text-anchor="middle">B1  +32</text>
+<text class="frs" x="82" y="332" text-anchor="middle">512  FREE</text>
+<line class="ar" x1="137" y1="318" x2="151" y2="318" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="153" y="296" width="105" height="44" rx="4"/>
+<text class="tlt" x="205" y="316" text-anchor="middle">B2 +576</text>
+<text class="tls" x="205" y="332" text-anchor="middle">512  used</text>
+<line class="ar" x1="260" y1="318" x2="274" y2="318" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="fr" x="276" y="296" width="105" height="44" rx="4"/>
+<text class="frt" x="328" y="316" text-anchor="middle">B3 +1120</text>
+<text class="frs" x="328" y="332" text-anchor="middle">512  FREE</text>
+<line class="ar" x1="383" y1="318" x2="397" y2="318" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="399" y="296" width="105" height="44" rx="4"/>
+<text class="tlt" x="451" y="316" text-anchor="middle">B4 +1664</text>
+<text class="tls" x="451" y="332" text-anchor="middle">512  used</text>
+<line class="ar" x1="506" y1="318" x2="520" y2="318" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="522" y="296" width="105" height="44" rx="4"/>
+<text class="tlt" x="574" y="316" text-anchor="middle">B5 +2208</text>
+<text class="tls" x="574" y="332" text-anchor="middle">512  used</text>
+<line class="ar" x1="629" y1="318" x2="643" y2="318" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="fr" x="645" y="296" width="105" height="44" rx="4"/>
+<text class="frt" x="697" y="316" text-anchor="middle">TAIL +2752</text>
+<text class="frs" x="697" y="332" text-anchor="middle">103712 free</text>
+
+<rect class="hd" x="30" y="362" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="380">CASE 2 — free(B2), a MIDDLE block with both neighbours free: BOTH branches fire</text>
+<text class="tls" x="738" y="380" text-anchor="end">6 nodes → 4</text>
+
+<text class="c" x="42" y="408">1. forward  next = B3 is free  →  B2-&gt;size = 512 + 32 + 512 = 1056 ; B2-&gt;next = B4 ; B4-&gt;prev = B2</text>
+<text class="c" x="42" y="425">2. backward prev = B1 is free  →  B1-&gt;size = 512 + 32 + 1056 = 1600 ; B1-&gt;next = B4 ; B4-&gt;prev = B1</text>
+<text class="mgs" x="42" y="442">B2 and B3 are now unreachable — their headers became payload. 1600 = three 512 payloads + the two 32-byte headers between them</text>
+
+<rect class="mg" x="30" y="454" width="351" height="44" rx="4"/>
+<text class="mgt" x="205" y="474" text-anchor="middle">B1  +32</text>
+<text class="mgs" x="205" y="490" text-anchor="middle">1600 FREE — was B1 + B2 + B3</text>
+<line class="ar" x1="383" y1="476" x2="397" y2="476" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="399" y="454" width="105" height="44" rx="4"/>
+<text class="tlt" x="451" y="474" text-anchor="middle">B4 +1664</text>
+<text class="tls" x="451" y="490" text-anchor="middle">512  used</text>
+<line class="ar" x1="506" y1="476" x2="520" y2="476" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="522" y="454" width="105" height="44" rx="4"/>
+<text class="tlt" x="574" y="474" text-anchor="middle">B5 +2208</text>
+<text class="tls" x="574" y="490" text-anchor="middle">512  used</text>
+<line class="ar" x1="629" y1="476" x2="643" y2="476" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="fr" x="645" y="454" width="105" height="44" rx="4"/>
+<text class="frt" x="697" y="474" text-anchor="middle">TAIL +2752</text>
+<text class="frs" x="697" y="490" text-anchor="middle">103712 free</text>
+
+<rect class="hd" x="30" y="520" width="720" height="26" rx="4"/>
+<text class="hdt" x="42" y="538">CASE 3 — free(B5), the LAST used block: always merges forward into the tail</text>
+<text class="tls" x="738" y="538" text-anchor="end">4 nodes → 3</text>
+
+<text class="c" x="42" y="566">block-&gt;next  = TAIL, free == 1  →  B5-&gt;size = 512 + 32 + 103712 = 104256 ; B5-&gt;next = NULL</text>
+<text class="c" x="42" y="583">block-&gt;prev  = B4, free == 0    →  backward branch skipped</text>
+
+<rect class="mg" x="30" y="594" width="351" height="44" rx="4"/>
+<text class="mgt" x="205" y="614" text-anchor="middle">B1  +32</text>
+<text class="mgs" x="205" y="630" text-anchor="middle">1600 FREE</text>
+<line class="ar" x1="383" y1="616" x2="397" y2="616" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="tl" x="399" y="594" width="105" height="44" rx="4"/>
+<text class="tlt" x="451" y="614" text-anchor="middle">B4 +1664</text>
+<text class="tls" x="451" y="630" text-anchor="middle">512  used</text>
+<line class="ar" x1="506" y1="616" x2="520" y2="616" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect class="mg" x="522" y="594" width="228" height="44" rx="4"/>
+<text class="mgt" x="636" y="614" text-anchor="middle">B5 +2208</text>
+<text class="mgs" x="636" y="630" text-anchor="middle">104256 FREE — swallowed the tail</text>
+
+<rect class="bx" x="30" y="660" width="720" height="132" rx="4"/>
+<rect class="hd" x="30" y="660" width="720" height="26" rx="4"/>
+<text class="hdt" x="390" y="678" text-anchor="middle">merge_block has only two ifs, so there are only four outcomes</text>
+<text xml:space="preserve" class="c" x="42" y="703">prev        next        what fires                          nodes</text>
+<text xml:space="preserve" class="c" x="42" y="723">used/NULL   used/NULL   neither, only free = 1 was written   same     ← CASE 1</text>
+<text xml:space="preserve" class="c" x="42" y="742">used/NULL   FREE        forward only                         −1       ← CASE 3</text>
+<text xml:space="preserve" class="c" x="42" y="761">FREE        used/NULL   backward only                        −1</text>
+<rect class="mg" x="38" y="768" width="704" height="20" rx="3"/>
+<text xml:space="preserve" class="c" x="42" y="782">FREE        FREE        forward then backward                −2       ← CASE 2</text>
+</svg>

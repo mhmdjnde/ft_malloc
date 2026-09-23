@@ -21,8 +21,13 @@ CC      = cc
 CFLAGS  = -Wall -Wextra -Werror -g -fPIC
 LDFLAGS = -shared
 
+ifeq ($(shell uname -s),Linux)
+LDFLAGS += -Wl,--version-script=srcs/ft_malloc.map
+endif
+
 SRC     = srcs/malloc.c srcs/free.c srcs/realloc.c srcs/show_alloc_mem.c \
-          srcs/align_and_size.c srcs/zone.c srcs/print.c
+          srcs/align_and_size.c srcs/zone.c srcs/print.c \
+          srcs/calloc.c
 OBJ     = $(SRC:.c=.o)
 
 all: $(NAME)

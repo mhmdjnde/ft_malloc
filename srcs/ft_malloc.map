@@ -1,0 +1,10 @@
+{
+	global:
+		malloc;
+		free;
+		realloc;
+		calloc;
+		show_alloc_mem;
+	local:
+		*;
+};

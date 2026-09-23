@@ -131,7 +131,7 @@ splitting here — the whole point of the LARGE class is that these are rare and
 one syscall each is acceptable, whereas doing that for TINY would destroy performance (which is
 precisely why the subject demands pre-allocated zones). The reason we still give LARGE a
 `t_zone` header instead of tracking it in a side table is uniformity: `show_alloc_mem` and
-`free` then walk one kind of structure. Watch the overflow check carefully here, since this is
+`free` then walk one kind of structure. Watch the overflow check carefully here, since thvis is
 the path a hostile `malloc(SIZE_MAX)` takes — `page_align(x + overhead)` must not wrap around to
 a tiny number. **Deliverable:** `malloc(1)`, `malloc(1024)`, `malloc(10 * 1024 * 1024)` and
 `malloc(SIZE_MAX)` all behave (the last returning `NULL`, not crashing).
@@ -205,7 +205,7 @@ every step that the previously written contents are still intact.
 
 ---
 
-## Part 9 — Hardening against real programs
+## Part 9 — Hardening against real programs ✅ done
 
 The mandatory part is now feature-complete, and this part is what turns "it passes my tests"
 into "it passes the defence". Run real binaries against it:

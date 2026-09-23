@@ -19,8 +19,8 @@ build/
 bin/
 
 # ── test binaries & artefacts ─────────────────────────────────────────────────
-test
-tests/bin/
+tests/test[0-6]
+tests/run.sh
 *.out
 a.out
 *.log
