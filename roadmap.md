@@ -21,11 +21,11 @@ of them is an instant fail, so re-read this block before each part):
 - No undefined behaviour, no segfault, ever — including on garbage input like `free(some_random_pointer)`.
 - Clean code even though there is no norm. "If it's ugly, you will get 0."
 
-The picture of the whole data path lives in [`malloc_path.svg`](malloc_path.svg) — open it
-next to this file while reading. [`malloc_three_calls.svg`](malloc_three_calls.svg) traces three
-real allocations through it — one tiny/small pair and one large — step by step, with the
-actual addresses. [`realloc_three_calls.svg`](realloc_three_calls.svg) then resizes those same
-three, and [`free_three_calls.svg`](free_three_calls.svg) frees them.
+Three diagrams trace the same three allocations end to end, with real addresses:
+[`malloc_three_calls.svg`](malloc_three_calls.svg) allocates them,
+[`realloc_three_calls.svg`](realloc_three_calls.svg) resizes them, and
+[`free_three_calls.svg`](free_three_calls.svg) frees them. `demo.c` narrates the same story
+as a runnable program.
 
 ---
 
