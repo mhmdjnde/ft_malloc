@@ -56,14 +56,15 @@ void	*move_elsewhere(void *ptr, t_block *block, size_t size)
 	void	*fresh;
 	size_t	copy;
 
-	fresh = malloc(size);
+	fresh = malloc_impl(size);
 	if (fresh == NULL)
 		return (NULL);
 	copy = block->size;
 	if (size < copy)
 		copy = size;
 	copy_bytes(fresh, ptr, copy);
-	free(ptr);
+	free_impl(ptr);
+	record(OP_REALLOC, fresh, size);
 	return (fresh);
 }
 
@@ -77,16 +78,16 @@ void	*resize_large(void *ptr, t_zone *zone, t_block *block, size_t size)
 	return (move_elsewhere(ptr, block, size));
 }
 
-void	*realloc(void *ptr, size_t size)
+void	*realloc_impl(void *ptr, size_t size)
 {
 	t_zone	*zone;
 	t_block	*block;
 
 	if (ptr == NULL)
-		return (malloc(size));
+		return (malloc_impl(size));
 	if (size == 0)
 	{
-		free(ptr);
+		free_impl(ptr);
 		return (NULL);
 	}
 	if (size > SIZE_MAX - ALIGNMENT)
@@ -105,4 +106,14 @@ void	*realloc(void *ptr, size_t size)
 	if (room_after(block) >= size)
 		return (resize_here(ptr, block, size));
 	return (move_elsewhere(ptr, block, size));
+}
+
+void	*realloc(void *ptr, size_t size)
+{
+	void	*fresh;
+
+	pthread_mutex_lock(&g_lock);
+	fresh = realloc_impl(ptr, size);
+	pthread_mutex_unlock(&g_lock);
+	return (fresh);
 }

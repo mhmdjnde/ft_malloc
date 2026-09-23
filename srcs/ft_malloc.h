@@ -15,13 +15,23 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <pthread.h>
 
 #define ALIGNMENT 16
 
 #define TINY_MAX  128
 #define SMALL_MAX 1024
+
+#define HISTORY   64
+#define DUMP_MAX  32
+
+#define OP_MALLOC  0
+#define OP_FREE    1
+#define OP_REALLOC 2
+#define OP_CALLOC  3
 
 typedef struct s_block
 {
@@ -39,10 +49,31 @@ typedef struct s_zone
 	struct s_zone   *next;
 } t_zone;
 
+typedef struct s_event
+{
+	void    *ptr;
+	size_t  size;
+	int     op;
+} t_event;
+
 //jnde is here, this is the only global variable used, it is to save the allocated
 //memory depending on its kind, so if I want to allocate another time, I'll check if
 //there is already a zone of that kind with free space, and if not, I'll create one.
-extern t_zone *g_zones[3];
+//the debug flags and the history live in the same struct so it stays ONE global.
+typedef struct s_arena
+{
+	t_zone   *zones[3];
+	t_event  history[HISTORY];
+	size_t   events;
+	int      scribble;
+	int      trace;
+	int      ready;
+} t_arena;
+
+extern t_arena         g_arena;
+
+//jnde is here, the second global, only for the thread-safety bonus
+extern pthread_mutex_t g_lock;
 
 size_t align_up(size_t size, size_t step);
 int    get_kind(size_t size);
@@ -58,10 +89,20 @@ t_zone  *find_zone(void *ptr);
 t_block *find_block(t_zone *zone, void *ptr);
 void    split_block(t_block *block, size_t size);
 
+void init_debug(void);
+void scribble(void *ptr, size_t size, unsigned char byte);
+void record(int op, void *ptr, size_t size);
+
+void *malloc_impl(size_t size);
+void free_impl(void *ptr);
+void *realloc_impl(void *ptr, size_t size);
+void show_alloc_mem_impl(void);
+
 void *malloc(size_t size);
 void *calloc(size_t count, size_t size);
 void free(void *ptr);
 void *realloc(void *ptr, size_t size);
 void show_alloc_mem(void);
+void show_alloc_mem_ex(void);
 
 #endif

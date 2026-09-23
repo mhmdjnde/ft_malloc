@@ -32,5 +32,6 @@ void	*calloc(size_t count, size_t size)
 		bytes[i] = 0;
 		i++;
 	}
+	record(OP_CALLOC, ptr, total);
 	return (ptr);
 }

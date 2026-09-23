@@ -5,6 +5,7 @@
 		realloc;
 		calloc;
 		show_alloc_mem;
+		show_alloc_mem_ex;
 	local:
 		*;
 };

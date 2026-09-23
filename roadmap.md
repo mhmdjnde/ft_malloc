@@ -225,7 +225,7 @@ have a number to quote. **Deliverable:** `ls -la` and `bash -c 'echo hi'` run cl
 
 ---
 
-## Part 10 — The bonus: thread-safety, debug env vars, `show_alloc_mem_ex()`, defragmentation
+## Part 10 — The bonus: thread-safety, debug env vars, `show_alloc_mem_ex()`, defragmentation ✅ done
 
 Only start this once Part 9 is genuinely finished — the subject is blunt that a bonus is not
 graded at all unless the mandatory part is *perfect*. Four pieces, in this order.

@@ -12,7 +12,8 @@
 
 #include "ft_malloc.h"
 
-t_zone *g_zones[3] = {NULL, NULL, NULL};
+t_arena         g_arena;
+pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void	add_zone(int kind, t_zone *zone)
 {
@@ -20,7 +21,7 @@ void	add_zone(int kind, t_zone *zone)
 	t_zone	*cur;
 
 	prev = NULL;
-	cur = g_zones[kind];
+	cur = g_arena.zones[kind];
 	while (cur != NULL && cur < zone)
 	{
 		prev = cur;
@@ -28,7 +29,7 @@ void	add_zone(int kind, t_zone *zone)
 	}
 	zone->next = cur;
 	if (prev == NULL)
-		g_zones[kind] = zone;
+		g_arena.zones[kind] = zone;
 	else
 		prev->next = zone;
 }

@@ -36,7 +36,7 @@ size_t	print_blocks(t_zone *zone)
 	return (used);
 }
 
-void	show_alloc_mem(void)
+void	show_alloc_mem_impl(void)
 {
 	char	*names[3];
 	t_zone	*zone;
@@ -50,7 +50,7 @@ void	show_alloc_mem(void)
 	kind = 0;
 	while (kind < 3)
 	{
-		zone = g_zones[kind];
+		zone = g_arena.zones[kind];
 		while (zone != NULL)
 		{
 			put_str(names[kind]);
@@ -65,4 +65,11 @@ void	show_alloc_mem(void)
 	put_str("Total : ");
 	put_nbr(total);
 	put_str(" bytes\n");
+}
+
+void	show_alloc_mem(void)
+{
+	pthread_mutex_lock(&g_lock);
+	show_alloc_mem_impl();
+	pthread_mutex_unlock(&g_lock);
 }

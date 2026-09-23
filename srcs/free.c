@@ -18,7 +18,7 @@ int	count_zones(int kind)
 	int		count;
 
 	count = 0;
-	zone = g_zones[kind];
+	zone = g_arena.zones[kind];
 	while (zone != NULL)
 	{
 		count++;
@@ -35,7 +35,7 @@ t_zone	*find_zone(void *ptr)
 	kind = 0;
 	while (kind < 3)
 	{
-		zone = g_zones[kind];
+		zone = g_arena.zones[kind];
 		while (zone != NULL)
 		{
 			if ((char *)ptr > (char *)zone
@@ -94,7 +94,7 @@ void	release_zone(t_zone *zone)
 	if (zone->kind != 2 && count_zones(zone->kind) == 1)
 		return ;
 	prev = NULL;
-	cur = g_zones[zone->kind];
+	cur = g_arena.zones[zone->kind];
 	while (cur != NULL && cur != zone)
 	{
 		prev = cur;
@@ -103,13 +103,13 @@ void	release_zone(t_zone *zone)
 	if (cur == NULL)
 		return ;
 	if (prev == NULL)
-		g_zones[zone->kind] = zone->next;
+		g_arena.zones[zone->kind] = zone->next;
 	else
 		prev->next = zone->next;
 	munmap(zone, zone->size);
 }
 
-void	free(void *ptr)
+void	free_impl(void *ptr)
 {
 	t_zone	*zone;
 	t_block	*block;
@@ -122,7 +122,16 @@ void	free(void *ptr)
 	block = find_block(zone, ptr);
 	if (block == NULL || block->free == 1)
 		return ;
+	scribble(ptr, block->size, 0x55);
+	record(OP_FREE, ptr, block->size);
 	block->free = 1;
 	merge_block(block);
 	release_zone(zone);
+}
+
+void	free(void *ptr)
+{
+	pthread_mutex_lock(&g_lock);
+	free_impl(ptr);
+	pthread_mutex_unlock(&g_lock);
 }

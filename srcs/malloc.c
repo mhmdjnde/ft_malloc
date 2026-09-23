@@ -14,7 +14,7 @@
 
 t_block *find_free_block(int kind, size_t size)
 {
-	t_zone *zone = g_zones[kind];
+	t_zone *zone = g_arena.zones[kind];
 
 	while (zone)
 	{
@@ -79,8 +79,11 @@ t_block *alloc_pooled(int kind, size_t size)
 	return block;
 }
 
-void *malloc(size_t size)
+void *malloc_impl(size_t size)
 {
+	if (g_arena.ready == 0)
+		init_debug();
+
 	if (size == 0)
 		size = 1;
 
@@ -103,6 +106,18 @@ void *malloc(size_t size)
 		return NULL;
 
 	block->free = 0;
+	scribble(block + 1, block->size, 0xAA);
+	record(OP_MALLOC, block + 1, block->size);
 
 	return block + 1;
+}
+
+void	*malloc(size_t size)
+{
+	void	*ptr;
+
+	pthread_mutex_lock(&g_lock);
+	ptr = malloc_impl(size);
+	pthread_mutex_unlock(&g_lock);
+	return (ptr);
 }
